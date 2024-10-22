@@ -3,55 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Login</title>
+    <title>Workout History</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://cdn.wallpapersafari.com/28/45/lqOMDN.jpg'); /* Background Image */
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
         form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             max-width: 300px;
-            margin: auto;
+            width: 100%;
+            transition: all 0.3s ease;
         }
-        label, input {
-            display: block;
-            margin: 10px 0;
+        form:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+        label {
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus {
+            border-color: #28a745;
+            outline: none;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        }
+        button {
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.5s ease-in-out;
+        }
+        .info {
+            color: #155724; /* Green for info */
+        }
+        .error {
+            color: #721c24; /* Red for errors */
+        }
+        @media (max-width: 400px) {
+            form {
+                width: 90%;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>User Login</h1>
-    <form id="loginForm">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-
+    <h1>Workout Statistics</h1>
+    <form id="tracker-login">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+    
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required min="0">
+    
         <button type="submit">Login</button>
     </form>
-    <pre id="response"></pre>
+    
+    <div id="response"></div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+        document.getElementById('tracker-login').addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const username = document.getElementById('username').value;
+            const age = parseInt(document.getElementById('age').value, 10);
+
+            console.log('Sending login request:', { username, age });
 
             try {
                 const response = await axios.post('http://localhost:3001/api/auth/login', {
-                    email,
-                    password,
+                    username,
+                    age,
                 });
 
-                // Display the user's username and phone number
                 const userInfo = response.data.user;
-                document.getElementById('response').textContent = `Username: ${userInfo.username}\nPhonenumber: ${userInfo.phonenumber}`;
+                document.getElementById('response').innerHTML = `
+                    <span class="info">Weight: <strong>${userInfo.weight}</strong></span><br>
+                    <span class="info">Workout Name: <strong>${userInfo.workoutname}</strong></span><br>
+                    <span class="info">Calories Burned: <strong>${userInfo.caloriesBurned}</strong></span><br>
+                    <span class="info">Workout Timing: <strong>${userInfo.workoutTiming}</strong></span>
+                `;
+                document.getElementById('response').style.display = 'block';
+                document.getElementById('response').style.opacity = '1'; // Fade-in effect
             } catch (error) {
                 console.error('Error during login:', error);
-                document.getElementById('response').textContent = `Error: ${error.response ? error.response.data.error : error.message}`;
+                document.getElementById('response').innerHTML = `
+                    <span class="error">Error: ${error.response ? error.response.data.error : error.message}</span>
+                `;
+                document.getElementById('response').style.display = 'block';
+                document.getElementById('response').style.opacity = '1'; // Fade-in effect
             }
         });
     </script>
